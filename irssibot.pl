@@ -20,6 +20,10 @@ sub handle
 	my $server = shift;
 	my ($msg, $nick, $mask, $target ) = @_;
 
+	# FIXME: find script dynamic:
+	my $file = "$ENV{HOME}/.irssi/irssibot/irssibot.py";
+	print $file;
+
 	open( PY, "python \"$file\" \"$msg\" \"$nick\" \"$mask\" \"$target\" |" ) || die "Failed: $!\n";
 	while( <PY> )
 	{

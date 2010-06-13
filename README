@@ -8,8 +8,8 @@ Download IrssiBot:
  $ git clone git://github.com/koenbollen/irssibot
 
 Install:
- $ mkdir scripts
- $ ln -s irssibot/irssibot.pl scripts/
+ $ mkdir -p scripts
+ $ ln -s ../irssibot/irssibot.pl scripts/
  $ echo "/run irssibot" >> startup
 
 Enable plugins:

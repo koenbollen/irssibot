@@ -14,11 +14,11 @@ class IrssiPlugin( object ):
 
     def reply(self, info, msg ):
         if info['type'] == "pubmsg":
-            cmd = "/msg %s %s %s" % (info['target'], self.prefix, msg)
+            cmd = "/msg %s %s%s" % (info['target'], self.prefix, msg)
         elif info['type'] == "privmsg":
-            cmd = "/msg %s %s %s" % (info['nick'], self.prefix, msg)
+            cmd = "/msg %s %s%s" % (info['nick'], self.prefix, msg)
         elif info['type'] == "ownmsg":
-            cmd = "/msg %s %s %s" % (info['target'], self.prefix, msg)
+            cmd = "/msg %s %s%s" % (info['target'], self.prefix, msg)
         else:
             print >>sys.stderr, "unable to reply"
         self.exports['bot'].commands.append( cmd )
