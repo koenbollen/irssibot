@@ -23,9 +23,6 @@ class IrssiPlugin( object ):
             print >>sys.stderr, "unable to reply"
         self.exports['bot'].commands.append( cmd )
 
-    def prevent_default(self ):
-        self.exports['bot'].commands.append( "!prevent" )
-
     def help(self, info ):
         return "No help availible for '%s'." % self.name
 

@@ -9,7 +9,6 @@ class DatePlugin( IrssiCmdPlugin ):
     def handle_command(self, info, sub, params ):
         now = datetime.now()
         self.reply( info, now.ctime() )
-        self.prevent_default()
 
     def help(self, info ):
         return "This command displays the current date."

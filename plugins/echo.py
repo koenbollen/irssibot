@@ -7,7 +7,6 @@ class EchoCmdPlugin( IrssiCmdPlugin ):
 
     def handle_command(self, info, sub, params ):
         self.reply( info, params )
-        self.prevent_default()
 
     def help(self, info):
         return "This command simply replies arguments."

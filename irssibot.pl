@@ -15,6 +15,13 @@ $VERSION = "1.0";
 
 my $file = "/home/koen/.irssi/irssibot/irssibot.py";
 
+sub execute
+{
+	my ($ref) = @_;
+	my ($server, $cmd) = @{$ref};
+	$server->command( $cmd );
+}
+
 sub handle
 {
 	my $server = shift;
@@ -22,7 +29,6 @@ sub handle
 
 	# FIXME: find script dynamic:
 	my $file = "$ENV{HOME}/.irssi/irssibot/irssibot.py";
-	print $file;
 
 	open( PY, "python \"$file\" \"$msg\" \"$nick\" \"$mask\" \"$target\" |" ) || die "Failed: $!\n";
 	while( <PY> )
@@ -30,18 +36,10 @@ sub handle
 		$_ =~ s/\s+$//;
 		if( $_ =~ /^\// )
 		{
-			$server->command( $_ );
-		}
-		elsif( $_ =~ /^!/ )
-		{
-			if( $_ == "!prevent" )
-			{
-				Irssi::signal_stop();
-			}
+			Irssi::timeout_add_once( 100, \&execute, [$server, $_] );
 		}
 	}
 	close( PY )
-
 }
 
 sub message
@@ -61,7 +59,6 @@ sub message
 	{
 		($msg, $target) = @_;
 	}
-	print "handle: ( msg=$msg, nick=$nick, mask=$mask, target=$target )";
 	handle( $server, $msg, $nick, $mask, $target );
 }
 
