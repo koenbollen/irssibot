@@ -26,6 +26,7 @@ sub handle
 {
 	my $server = shift;
 	my ($msg, $nick, $mask, $target ) = @_;
+	$msg =~ s/"/\\"/g;
 
 	# FIXME: find script dynamic:
 	my $file = "$ENV{HOME}/.irssi/irssibot/irssibot.py";
