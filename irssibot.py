@@ -27,7 +27,9 @@ class IrssiBot( object ):
             sys.path.insert( 0, path )
         files = os.listdir( path )
         for file in files:
-            name, _ = os.path.splitext( file )
+            name, ext = os.path.splitext( file )
+            if ext != ".py":
+                continue
             mod = __import__(name)
             try:
                 inst = mod.main(self.exports)
@@ -76,7 +78,7 @@ class IrssiBot( object ):
             try:
                 func( info )
             except Exception, e:
-                pass
+                raise e
 
         while self.commands:
             command = self.commands.pop(0)

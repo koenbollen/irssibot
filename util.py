@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 #
 
-
 class CallbackFile( object ):
     def __init__(self, writecallback=None, strip=False ):
+        self.wbuf = ""
         self.writecallback = writecallback
         self.strip = strip
 
@@ -11,7 +11,10 @@ class CallbackFile( object ):
         if self.writecallback:
             if self.strip:
                 msg = msg.rstrip()
-            self.writecallback( msg )
+            self.wbuf += msg
+            while "\n" in self.wbuf:
+                line, self.wbuf = self.wbuf.split("\n", 1)
+                self.writecallback( line )
 
     def close(self ):
         self.writecallback = None

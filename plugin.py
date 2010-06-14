@@ -6,7 +6,7 @@ import re
 
 class IrssiPlugin( object ):
 
-    prefix = "[irssi] "
+    prefix = "[bot] "
 
     def __init__(self, name, exports ):
         self.name = name
@@ -36,6 +36,7 @@ class IrssiCmdPlugin( IrssiPlugin ):
         self.exports['bot'].add_hook( self.command, "msg", self.on_msg )
 
     def on_msg(self, info ):
+
         if info['msg'].startswith( self.prefix ):
             return
 
