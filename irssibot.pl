@@ -17,20 +17,21 @@ my $file = "/home/koen/.irssi/irssibot/irssibot.py";
 
 sub execute
 {
-	my ($ref) = @_;
-	my ($server, $cmd) = @{$ref};
+	my ($server, $cmd) = @{@_[0]};
 	$server->command( $cmd );
 }
 
 sub handle
 {
-	my $server = shift;
-	my ($msg, $nick, $mask, $target ) = @_;
-	$msg =~ s/"/\\"/g;
+	my ($server, $msg, $nick, $mask, $target) = @{@_[0]};
 
 	# FIXME: find script dynamic:
 	my $file = "$ENV{HOME}/.irssi/irssibot/irssibot.py";
 
+	$msg    =~ s/"/\\"/g;
+	$nick   =~ s/"/\\"/g;
+	$mask   =~ s/"/\\"/g;
+	$target =~ s/"/\\"/g;
 	open( PY, "python \"$file\" \"$msg\" \"$nick\" \"$mask\" \"$target\" |" ) || die "Failed: $!\n";
 	while( <PY> )
 	{
@@ -60,7 +61,7 @@ sub message
 	{
 		($msg, $target) = @_;
 	}
-	handle( $server, $msg, $nick, $mask, $target );
+	Irssi::timeout_add_once( 10, \&handle, [$server, $msg, $nick, $mask, $target] );
 }
 
 Irssi::signal_add('message public', 'message');
