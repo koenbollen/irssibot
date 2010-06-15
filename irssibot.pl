@@ -47,7 +47,6 @@ sub handle
 sub overflow_timeout
 {
 	$allow = 1;
-	print "overflow_timeout";
 }
 
 sub message
