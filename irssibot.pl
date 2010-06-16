@@ -21,6 +21,16 @@ sub execute
 	$server->command( $cmd );
 }
 
+sub sanatize
+{
+	my $data = shift;
+	$data =~ s/\\/\\\\/g;
+	$data =~ s/"/\\"/g;
+	$data =~ s/\`/\\\`/g;
+	$data =~ s/\$/\\\$/g;
+	return $data;
+}
+
 sub handle
 {
 	my ($server, $msg, $nick, $mask, $target) = @{@_[0]};
@@ -28,10 +38,10 @@ sub handle
 	# FIXME: find script dynamic:
 	my $file = "$ENV{HOME}/.irssi/irssibot/irssibot.py";
 
-	$msg    =~ s/"/\\"/g;
-	$nick   =~ s/"/\\"/g;
-	$mask   =~ s/"/\\"/g;
-	$target =~ s/"/\\"/g;
+	$msg    = sanatize( $msg );
+	$nick   = sanatize( $nick);
+	$mask   = sanatize( $mask );
+	$target = sanatize( $target );
 	open( PY, "python \"$file\" \"$msg\" \"$nick\" \"$mask\" \"$target\" |" ) || die "Failed: $!\n";
 	while( <PY> )
 	{
