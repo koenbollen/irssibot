@@ -78,7 +78,7 @@ class IrssiBot( object ):
             try:
                 func( info )
             except Exception, e:
-                raise e
+                print >>sys.stderr, e
 
         while self.commands:
             command = self.commands.pop(0)

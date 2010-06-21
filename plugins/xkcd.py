@@ -56,25 +56,23 @@ class XKCDCmdPlugin( IrssiCmdPlugin ):
     def handle_command(self, info, sub, params ):
         if sub == "$":
             res = self.xkcd( random=True )
-            pre = "random XKCD"
-        elif params.strip() in self.rgb:
+            return self.reply( info, "random XKCD: '%s' (%s)" % res )
+        try:
+            n = int( params )
+            res = self.xkcd( n )
+            return self.reply(info, "XKCD #%d: '%s' (%s)" % (n,res[0],res[1]))
+        except (TypeError, ValueError):
+            pass
+        if params is None or len(params.strip()) < 1:
+            res = self.xkcd()
+            return self.reply( info, "latest XKCD: '%s' (%s)" % res )
+        if params.strip() in self.rgb:
             res = False
-            self.reply( info, "XKCD color: %s = %s"%(params,self.rgb[params]))
-        else:
-            try:
-                n = int( params )
-                pre = "XKCD #%d" % n
-            except (TypeError, ValueError):
-                n = None
-                pre = "latest XKCD"
-            res = self.xkcd(n)
-        if res is None:
-            return self.reply( info, "unable to retrieve the XKCD!" )
-        elif res is not False:
-            self.reply( info, "%s: '%s' (%s)" % (pre, res[0], res[1]) )
+            return self.reply( info, "XKCD color: %s = %s"%(params,self.rgb[params]))
+        return self.reply( info, "XKCD: comic or color not found!" )
 
     def help(self, info):
-        return "Retrieve the latest XKCD title and url. ( random: !xkcd$ )"
+        return "Retrieve the latest XKCD title and url (or color). ( random: !xkcd$ )"
 
 def main( exports ):
     return XKCDCmdPlugin( "XKCD", "xkcd", exports )
