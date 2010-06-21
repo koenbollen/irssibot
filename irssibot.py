@@ -34,8 +34,8 @@ class IrssiBot( object ):
             try:
                 inst = mod.main(self.exports)
                 self.__plugins[name] = inst
-            except AttributeError:
-                print >>sys.stderr, "unable to load plugin:", name
+            except AttributeError, e:
+                print >>sys.stderr, "unable to load plugin:", name, "(", e, ")"
             logging.info( "plugin '%s' loaded", name )
 
     def add_hook(self, name, type, func ):

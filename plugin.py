@@ -11,6 +11,10 @@ class IrssiPlugin( object ):
     def __init__(self, name, exports ):
         self.name = name
         self.exports = exports
+        self.init()
+
+    def init(self ):
+        pass
 
     def reply(self, info, msg ):
         if info['type'] == "pubmsg":

@@ -3,9 +3,33 @@
 
 from plugin import IrssiCmdPlugin
 import urllib2
+import os
 from BeautifulSoup import BeautifulSoup
 
 class XKCDCmdPlugin( IrssiCmdPlugin ):
+
+    def init(self ):
+
+        self.rgb = {}
+
+        try:
+            if os.path.exists( "/tmp/xkcd.rgb.txt" ):
+                fp = open( "/tmp/xkcd.rgb.txt" )
+                data = fp.read()
+                fp.close()
+            else:
+                res = urllib2.urlopen( "http://xkcd.com/color/rgb.txt" )
+                data = res.read()
+                res.close()
+                fp = open( "/tmp/xkcd.rgb.txt", "wb" )
+                fp.write( data )
+                fp.close()
+
+            for line in data.splitlines():
+                color, value = line.rsplit(None, 1)
+                self.rgb[color] = value
+        except IOError:
+            return
 
     def xkcd(self, n=None, random=False ):
         url = "http://xkcd.com/"
@@ -33,6 +57,9 @@ class XKCDCmdPlugin( IrssiCmdPlugin ):
         if sub == "$":
             res = self.xkcd( random=True )
             pre = "random XKCD"
+        elif params.strip() in self.rgb:
+            res = False
+            self.reply( info, "XKCD color: %s = %s"%(params,self.rgb[params]))
         else:
             try:
                 n = int( params )
@@ -43,7 +70,8 @@ class XKCDCmdPlugin( IrssiCmdPlugin ):
             res = self.xkcd(n)
         if res is None:
             return self.reply( info, "unable to retrieve the XKCD!" )
-        self.reply( info, "%s: '%s' (%s)" % (pre, res[0], res[1]) )
+        elif res is not False:
+            self.reply( info, "%s: '%s' (%s)" % (pre, res[0], res[1]) )
 
     def help(self, info):
         return "Retrieve the latest XKCD title and url. ( random: !xkcd$ )"
