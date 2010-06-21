@@ -1,8 +1,8 @@
 # Koen Bollen <meneer koenbollen nl>
 # 2010 GPL
 
-import sys
 import re
+import logging
 
 class IrssiPlugin( object ):
 
@@ -24,7 +24,7 @@ class IrssiPlugin( object ):
         elif info['type'] == "ownmsg":
             cmd = "/msg %s %s%s" % (info['target'], self.prefix, msg)
         else:
-            print >>sys.stderr, "unable to reply"
+            logging.error( "unable to reply" )
         self.exports['bot'].commands.append( cmd )
 
     def help(self, info ):
@@ -53,6 +53,9 @@ class IrssiCmdPlugin( IrssiPlugin ):
                 self.reply( info, self.help(info) )
             else:
                 self.handle_command( info, subcmd, params )
+
+    def handle_command(self, info, subcmd, params ):
+        pass
 
 
 # vim: expandtab shiftwidth=4 softtabstop=4 textwidth=79:

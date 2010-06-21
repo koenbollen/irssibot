@@ -1,3 +1,5 @@
 *.pyc
-*.log
-plugins/autoload/*
+*log
+*db
+Session.vim
+plugins/autoload/*.py

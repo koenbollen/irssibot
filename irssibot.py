@@ -5,6 +5,7 @@ import os
 import sys
 import logging
 import util
+import ConfigParser
 
 class IrssiBot( object ):
 
@@ -17,6 +18,9 @@ class IrssiBot( object ):
         self.__plugins = {}
         self.__hooks = {}
 
+        self.__config()
+        logging.info( "irssibot started" )
+        self.__dbsetup()
         self.__autoload()
 
     def __autoload(self ):
@@ -35,8 +39,52 @@ class IrssiBot( object ):
                 inst = mod.main(self.exports)
                 self.__plugins[name] = inst
             except AttributeError, e:
-                print >>sys.stderr, "unable to load plugin:", name, "(", e, ")"
+                logging.error( "unable to load plugin:", name, "(", e, ")" )
             logging.info( "plugin '%s' loaded", name )
+
+    def __dbsetup(self ):
+        self.dba = None
+        self.dbc = None
+        if self.cfg.has_option( "db", "type" ):
+            dbtype  = self.cfg.get( "db", "type" )
+            connect = self.cfg.get( "db", "connect" )
+            try:
+                self.dba = __import__( dbtype )
+            except ImportError:
+                logging.critical("unable to import database module: "+dbtype)
+                sys.exit(1)
+            try:
+                self.dbc = self.dba.connect( connect )
+            except self.dba.DatabaseError, e:
+                logging.critical("unable to connect to the database: %s",e)
+                sys.exit(1)
+            logging.info("connected to the database" )
+            self.exports['hasdb'] = True
+        else:
+            logging.info("no database connected" )
+            self.exports['hasdb'] = False
+        self.exports['dba'] = self.dba
+        self.exports['dbc'] = self.dbc
+
+
+    def __config(self ):
+        path = os.path.join( self.root, "config" )
+        self.cfg = ConfigParser.ConfigParser( {'root': self.root} )
+        read = self.cfg.read( path )
+        self.exports['cfg'] = self.cfg
+
+        if self.cfg.has_option("logging", "level"):
+            lvls = ('debug', 'info', 'warn', 'err', 'crit')
+            level = self.cfg.get("logging", "level")
+            for i,l in enumerate(lvls):
+                if level.lower().startswith(l):
+                    level = (i+1)*10
+                    break
+            logging.getLogger().setLevel( level )
+
+        logging.debug( "configuration files: %r", read )
+
+
 
     def add_hook(self, name, type, func ):
         logging.debug( "hook added: %s %s", name, type )
@@ -78,7 +126,7 @@ class IrssiBot( object ):
             try:
                 func( info )
             except Exception, e:
-                print >>sys.stderr, e
+                logging.error( "hook %s failed: %s" % (func.__name__, e) )
 
         while self.commands:
             command = self.commands.pop(0)
@@ -100,16 +148,16 @@ def main():
     if __name__ == "__main__":
         root = os.path.dirname( os.path.realpath( sys.argv[0] ) )
     else:
-        root = os.path.dirname( __name__ )
+        root = os.path.dirname( __file__ )
 
-    logfile = os.path.join( root, "irssibot.log" )
+    logfile = os.path.join( root, "log" )
     logging.basicConfig(
             filename=logfile,
             level=logging.DEBUG,
             format="%(levelname)-8s %(message)s"
         )
     sys.stdout = util.CallbackFile(
-        writecallback=lambda msg:msg.strip() and logging.debug(msg.rstrip())
+        writecallback=lambda msg:msg.strip() and logging.info(msg.rstrip())
         )
 
     bot = IrssiBot( root )

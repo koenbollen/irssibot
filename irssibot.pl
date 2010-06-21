@@ -18,6 +18,7 @@ $VERSION = "1.0";
 sub execute
 {
 	my ($server, $cmd) = @{@_[0]};
+	# TODO: Add whitelist.
 	$server->command( $cmd );
 }
 
@@ -49,6 +50,13 @@ sub handle
 		if( $_ =~ /^\// )
 		{
 			Irssi::timeout_add_once( 100, \&execute, [$server, $_] );
+
+			# A plugin issued a command, triggering flood control:
+			my $flood;
+			$flood = Irssi::settings_get_int( "irssibot_flood" );
+			$flood = 1000 if $flood < 10;
+			$allow = 0;
+			Irssi::timeout_add_once( $flood, \&overflow_timeout, undef );
 		}
 	}
 	close( PY )
@@ -79,16 +87,7 @@ sub message
 
 	if( $allow )
 	{
-		my $flood;
-
-		$allow = 0;
-
-		$flood = Irssi::settings_get_int( "irssibot_flood" );
-		$flood = 1000 if $flood < 10;
-
 		Irssi::timeout_add_once( 10, \&handle, [$server, $msg, $nick, $mask, $target] );
-
-		Irssi::timeout_add_once( $flood, \&overflow_timeout, undef );
 	}
 }
 
