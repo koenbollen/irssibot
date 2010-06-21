@@ -2,34 +2,30 @@
 # 2010 GPL
 
 from plugin import IrssiCmdPlugin
-import urllib2
-import os
 from BeautifulSoup import BeautifulSoup
+import urllib2
 
 class XKCDCmdPlugin( IrssiCmdPlugin ):
 
     def init(self ):
+        cache = self.exports['cache']
 
         self.rgb = {}
 
         try:
-            if os.path.exists( "/tmp/xkcd.rgb.txt" ):
-                fp = open( "/tmp/xkcd.rgb.txt" )
-                data = fp.read()
-                fp.close()
-            else:
+            self.rgb = cache.get( "xkcd.rgb" )
+        except KeyError:
+            try:
                 res = urllib2.urlopen( "http://xkcd.com/color/rgb.txt" )
                 data = res.read()
                 res.close()
-                fp = open( "/tmp/xkcd.rgb.txt", "wb" )
-                fp.write( data )
-                fp.close()
 
-            for line in data.splitlines():
-                color, value = line.rsplit(None, 1)
-                self.rgb[color] = value
-        except IOError:
-            return
+                for line in data.splitlines():
+                    color, value = line.rsplit(None, 1)
+                    self.rgb[color] = value
+                cache.set( "xkcd.rgb", self.rgb )
+            except IOError:
+                return
 
     def xkcd(self, n=None, random=False ):
         url = "http://xkcd.com/"

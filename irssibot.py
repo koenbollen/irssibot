@@ -20,7 +20,7 @@ class IrssiBot( object ):
 
         self.__config()
         logging.info( "irssibot started" )
-        self.__dbsetup()
+        self.__setup()
         self.__autoload()
 
     def __autoload(self ):
@@ -42,7 +42,7 @@ class IrssiBot( object ):
                 logging.error( "unable to load plugin:", name, "(", e, ")" )
             logging.info( "plugin '%s' loaded", name )
 
-    def __dbsetup(self ):
+    def __setup(self ):
         self.dba = None
         self.dbc = None
         if self.cfg.has_option( "db", "type" ):
@@ -65,6 +65,9 @@ class IrssiBot( object ):
             self.exports['hasdb'] = False
         self.exports['dba'] = self.dba
         self.exports['dbc'] = self.dbc
+
+
+        self.exports['cache'] = self.cache = util.Cache( self.dbc )
 
 
     def __config(self ):
